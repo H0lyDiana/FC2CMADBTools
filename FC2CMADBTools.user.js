@@ -1,438 +1,494 @@
 // ==UserScript==
-// @name         NTE StarDB Localization
+// @name         FC2CMADBTools
 // @namespace    http://tampermonkey.net/
-// @version      3.9
-// @description  NTE辅助网站汉化
-// @author       User
-// @match        https://nte.stardb.gg/*
+// @version      2.0
+// @description  提取7位数字生成对应链接悬浮窗、移除图片模糊、页面自定义翻译。
+// @author       AI
+// @match        https://fc2cmadb.com/*
 // @grant        none
 // ==/UserScript==
+
 
 (function() {
     'use strict';
 
-    // 配置区分两个规则字典
-    // 1. 精准全匹配：文本格式化后完全一模一样才替换整条
-    const fullMatchDict = {
-
-"Log in to track progress":"登录以追踪进度",
-"Task progress and stamina tracking are account-only now.":"计划表进度和体力追踪仅限登录用户使用。",
-"Log In":"登录",
-"Signed in with StarDB":"用StarDB账户登录",
-"Account Settings":"账户设置",
-"Log out":"退出登录",
-"Global Preferences":"全局偏好",
-"Choose the default region used for reset-based features\n\t\t\t\t\tacross the site.":"更改网站计划表刷新时间所基于的游戏区服。",
-"Reset Region":"区服设置",
-"Asia/SEA (5 AM GMT+8)":"亚服/东南亚服(早晨5点 GMT+8)",
-"Europe (5 AM GMT+2)":"欧服(早晨5点 GMT+2)",
-"America (5 AM GMT-4)":"美服(早晨5点 GMT-4)",
-"China (5 AM GMT+8)":"国服(早晨5点 GMT+8)",
-"Legacy Browser Progress":"浏览器旧进度",
-"Merge older progress from this browser into your account\n\t\t\t\t\twithout replacing account settings.":"将此浏览器中的旧进度合并到您的帐户中，但不替换账户设置。",
-"Clear legacy browser progress after a successful merge":"合并成功后清除浏览器旧进度",
-"Merge legacy browser progress":"合并浏览器旧进度",
-"Account JSON":"账户JSON",
-"Back up your account progress or restore it from a JSON\n\t\t\t\t\tfile.":"备份你的账户进度或从JSON文件恢复。",
-"Export account JSON":"导出账户JSON",
-"Import account JSON":"导入账户JSON",
-"Danger Zone":"危险区域",
-"Permanently wipe all progress and synced settings stored on\n\t\t\t\t\tthis account.":"永久删除此帐户上存储的所有进度和同步设置。",
-"Reset account progress":"删除账户进度",
-"Saved account preferences.":"账户偏好已保存。",
-"Tasks":"计划表",
-"Quests":"任务",
-"Achievements":"成就",
-"Tools":"工具",
-"Map":"地图",
-"Task Info":"计划表详情",
-"No description has been added yet.":"尚未添加任何描述。",
-"Move cursor over map":"移动鼠标到地图上",
-"Middle-click to copy":"鼠标滚轮键复制",
-"Copied":"已复制",
-"Character Pixels":"本性像素",
-"Character Pixels cap":"本性像素上限",
-"City Stamina":"都市活力",
-"City Stamina cap":"都市活力上限",
-"Battle Pass Daily Tasks":"环期赏令每日任务",
-"Daily Activity":"每日活跃度",
-"Illegal Activities / City Incidents":"城市违规行径",
-"Detention Facility Item Pickups":"拘留所物资拾取",
-"Nacupeda's Pool":"纳库佩达之池",
-"Grants a random amount of [Mhm! Coin] via first dialogue option.\nUse 100x [Mhm! Coin] to buy [Your Happiness is Priceless] S-Rank Arc in Mall -> Arc Shop -> Arc Exchange.":"选择第一个选项获得随机数量的[嗯！硬币]。|使用100个[嗯！硬币]可以购买[千金难买你开心]S级弧盘，在商城->弧盘商店->弧盘兑换。",
-"Witch's House Fortune":"魔女之家占卜",
-"[Bond] 10x Affection Gift":"[羁遇]10次赠送礼物",
-"10x Affection Gift":"10次羁遇赠礼",
-"[Bond] 3x Memory Theater Encounter":"[羁遇]3次回忆映厅遭遇",
-"3x Memory Theater Encounter":"3次回忆映厅遭遇",
-"50 Affection":"50点好感度",
-"[Bond] 1x Daily Date":"[羁遇]1次每日约会",
-"1x Daily Date":"1次每日约会",
-"200 Affection":"200点好感度",
-"[Bond] Yuanmu Hill - Fortune Shades Wish":"[羁遇]愿木坡祈福",
-"Fortune Shades Wish":"祈福",
-"South-East in the New Herland District -> Yuanmu Hill -> Fortune Shades Wish\n- Buy any Wish Plaque from Zhilan\n- 50 Affection (random character)":"新赫兰德区东南方向->愿木坡->祈福\n-在芷兰处购买任意祈福牌\n-50好感度(随机角色)",
-"Completion":"显示完成",
-"All":"全部",
-"Hidden":"显示隐藏",
-"Display":"显示",
-"Compact":"简略",
-"Regular":"完整",
-"Not Hidden":"显示未隐藏",
-"Completed":"显示已完成",
-"Incomplete":"显示未完成",
-"Recurring Annulith":"循环环石",
-"One-time Annulith":"一次性环石",
-"Achievement":"成就",
-"Bond":"羁遇",
-"Anomaly Furniture":"异象家具",
-"[Anomaly Furniture] City Delivery":"[异象家具]同城派送",
-"City Delivery":"同城派送",
-"Required to upgrade [Anomaly Furniture] Old Mailbox":"可以升级[异象家具]老旧邮箱",
-"[Anomaly Furniture] Compressed Boom Boom Cloud Claim":"[异象家具]绵绵[绒绒棉花]收集",
-"Compressed Boom Boom Cloud / Fluff":"压缩嘭嘭朵/绵绵",
-"[Anomaly Furniture] Hamster Ball Claim":"[异象家具]仓鼠球收集",
-"[Anomaly Furniture] Damaged Crate Claim":"[异象家具]木箱收集",
-"Chiz Basic Attack Fons Cap":"小吱普通攻击方斯上限",
-"Daily Cap: 40,000 Fons\nTotal Cap: 250,000 Fons (base) | 500,000 Fons (Tycoon Level 25)":"每日上限:40,000方斯|总上限:250,000方斯(初始)|500,000方斯(大亨等级25)",
-"Collect/Restock Cafe":"收集/补货一咖舍",
-"Rob NPCs | 4x Wallet, 4x Briefcase, 4x Lunch Bag":"抢劫NPC|4个通勤公文包，4个遗失的钱包，4个速食早餐袋",
-"Overworld enemies":"大世界敌人",
-"[Fish Market] Daily Refresh":"[渔获市场]每日收购",
-"Fish Market":"渔获市场",
-"Taygedo's Shed":"塔吉多的仓库",
-"Battle Pass Weekly XP Cap":"环期赏令历练值周上限",
-"Edgar Bond 10 - Weekly Collectible":"埃德嘉羁遇10级-读后感",
-"Edgar Hunter's Guide":"埃德嘉猎人攻略",
-"[Anomaly Furniture] Blind Mammon - Realm of Greed Fons":"[异象家具]玛门-贪世宝库方斯",
-"[Anomaly Furniture] Old Mailbox - Special City Commission":"[异象家具]老旧邮箱-特殊同城派送",
-"[Anomaly Furniture] Ebisu Auction House":"[异象家具]惠比寿拍卖行",
-"Items / Materials":"道具/材料",
-"Fons":"方斯",
-"[Fishing Tackle Shop] 3x Universal Bait":"[渔具商店]3个万能鱼饵",
-"3x Universal Bait":"3个万能鱼饵",
-"Fishing Spot -> Fishing Tackle Shop\n- 100 Fons per 1 Universal Bait, 3 stock limit":"钓点->渔具商店\n-100方斯购买1个万能鱼饵,每日3个库存",
-"10x Small Safe (15k Fons)":"10个小保险箱(1.5万方斯)",
-"Anomaly Pilgrimage":"异象巡礼",
-"Exploration Guide -> Anomaly Pilgrimage\n- Weekly Reward Claims: 3":"探索指南->异象巡礼-每周领取奖励次数：3",
-"Take Without Permission":"直接拿走商店道具",
-"Stealing from Shops around Hethereau":"商店偷窃",
-"Shop Stocks":"商店库存刷新",
-"Pink Paws Heist":"粉爪大劫案",
-"Lost Exchange":"迷迭兑换",
-"Mall -> Fair Exchange -> Lost Exchange\nRequires [Lost Piece] Currency from Scarborough Fair":"商城->集市兑换->迷迭兑换|需要斯卡布罗集市获得的[迷迭棋子]货币",
-"Otherworld Salvage Station (Beyond the Rails Shop)":"异境回收站(轨外之境商店)",
-"Mall -> Mode Shop -> Otherworld Salvage Station\nRequires [Train Log] Currency from Beyond the Rails":"商城->玩法商店->异境回收站|需要轨外之境获得的[行车日志]货币",
-"[Fishing Tackle Shop] 100x Beetle Coin":"[渔具商店]100次甲壳币兑换",
-"Beyond the Rails":"轨外之境",
-"Hunter Exchange":"猎人交易所",
-"Battle Pass":"环期赏令",
-"Online Mode Racing: Ace Driver":"车辆赛事在线对战：S1赛季",
-"Add Task":"添加计划",
-"Save":"保存",
-"Cancel":"取消",
-"Delete":"删除",
-"Task type":"计划类型",
-"Normal":"普通",
-"Map marker":"地图标记",
-"Description":"描述",
-"Icon":"图标",
-"Reset Time":"重置时间",
-"None":"无",
-"Daily":"每日",
-"Weekly":"每周",
-"Biweekly":"每两周",
-"Monthly":"每月",
-"Version End":"版本结束",
-"Custom":"自定义",
-"Praise Jam":"过奖果酱",
-"Bagel - Praise Jam Calculator":"呗果-过奖果酱计算器",
-"Post Stats":"帖子数据",
-"Views":"浏览量",
-"Likes":"点赞",
-"Followers":"粉丝",
-"Comments":"评论",
-"Saves":"收藏",
-"Post Stats - Score Brackets":"帖子数据-分数阶梯",
-"Reset":"重置",
-"Interactions":"社交互动",
-"Viewed":"查看他人帖子",
-"Liked":"点赞他人帖子",
-"Commented":"评论他人帖子",
-"Summary":"激励计划",
-"Post Stats Praise Jam":"帖子数据过奖果酱",
-"Post Stats Score":"帖子数据分数",
-"Interactions Praise Jam":"社交互动过奖果酱",
-"Total Praise Jam":"总计过奖果酱",
-"ReroRero Phone Booth":"ReroRero电话亭",
-"Wertheimer Tower":"维特海默塔",
-"Oracle Stone":"谕石",
-"Version":"游戏版本",
-"Episodes":"正篇",
-"Spinoffs":"番外",
-"Guide":"引导",
-"Side":"支线",
-"Exploration":"探索",
-"Zero Hour Chronicles":"零点纪事",
-"Battle":"战斗",
-"8-Track Background Noise":"8-Track底噪",
-"Bopp in a Boxx":"盒式波普",
-"Interest":"趣味",
-"Single Frame Funk":"单帧放克",
-"Pixel Vaporwave":"像素蒸汽波",
-"Develop":"养成",
-"Distorted Ferrite":"失真铁氧体",
-"Gameplay":"玩法",
-"Gravity Type IV":"引力Type IV",
-"City":"城市",
-"A/B Flip/Side":"回转AB面",
-"Hide Collected":"隐藏已收集点位",
-"Mark Uncollected":"标记此点位未收集",
-"Mark All Collected":"标记全部点位已收集",
-"Mark Collected":"标记此点位已收集",
-"Mark All Uncollected":"标记全部点位未收集",
-"Copy Link":"复制点位链接",
-"Filters":"筛选",
-"Progress":"进度",
-"Info":"详情",
-"Collectable":"可收集总数",
-"District":"区域",
-"Hethereau":"海特洛",
-"Bridge Crossings":"桥间地",
-"Unheard Shores":"未闻浦",
-"Illusion Town":"绘空町",
-"Miguel District":"米格尔区",
-"New Herland":"新赫兰德区",
-"All districts":"全部区域",
-"No districts":"无区域",
-"2 districts":"2个区域",
-"3 districts":"3个区域",
-"4 districts":"4个区域",
-"5 districts":"5个区域",
-"6 districts":"6个区域",
-"7 districts":"7个区域",
-"Wanderer's Journal":"游记",
-"Map Finds":"大世界探索",
-"Enemies":"敌人",
-"Anomaly Zone":"异象空间",
-"Detention Escapes":"拘留所越狱",
-"Side Quest":"支线",
-"Check-In":"打卡",
-"Haunted Vending Machine":"贩售机附电灵",
-"Collected":"已收集",
-"Reset Progress":"重置进度",
-"Export Progress":"导出进度",
-"Import Progress":"导入进度",
-"No marker selected":"没有已选择的点位",
-"Lost Wallet":"遗失的钱包",
-"Lost Locker Key":"储物柜钥匙",
-"Magician's Gift":"魔术师的馈赠",
-"Chameleon Package":"避役的包裹",
-"Big Safe":"大保险箱",
-"City Crimes":"城市违规行径",
-"Bopp":"波普",
-"Cardboard Castle":"瓦楞城堡",
-"Cursed Blade":"妖刀",
-"Decomposer":"分解者",
-"Dream Spawn":"流梦种",
-"Empty Shell":"空铠甲",
-"Eternal Lamp":"长明灯",
-"Feather Puppet":"羽偶",
-"Fluffy":"棉绒绒",
-"Ghostly Kite":"诡面筝",
-"Haunted Record Player":"唱片机附电灵",
-"Huggy Vines":"抱抱藤",
-"Leech Spawn":"凭依种",
-"Lost Spawn":"迷失种",
-"Noros":"诺诺斯",
-"Octowpus":"拖车艄",
-"Paper Squadron":"纸翼战队",
-"Pouch Mosquito":"包包蚊",
-"Rain-sweeping Maid":"扫晴娘",
-"Rainman":"雨人",
-"Saddy Teddy":"伤心英熊",
-"Skyfish Banner":"洄天鱼幡",
-"The Vishnus":"无明众",
-"Whisper Spawn":"低语种",
-"Wind Spawn":"风洞种",
-"Lv1 Safes":"1级保险箱",
-"Lv2 Safes":"2级保险箱",
-"Morphix":"墨菲克斯",
-"Bubble Can Factory":"泡影罐头工厂",
-"Houdinii's Magic Stage":"胡迪尼的魔术舞台",
-"Houdinii's Schemes":"胡迪尼的诡计舞台",
-"Rabbit Hole":"兔子洞",
-"The Never-ending Arachne":"永不谢幕的阿拉克捏",
-"Easter Eggs":"彩蛋",
-"Side Quests":"支线",
-"Pink Paws Bank HQ":"粉爪总行",
-"Gold Apple Collection Hall":"金苹果藏馆",
-"Fishing Spot":"钓点",
-"Midas Arc Workshop":"迈达斯弧盘工房",
-"No comments yet.":"暂无评论。",
-"Screenshots":"截图",
-"Post":"发布",
-"Anomaly Hunt":"异象追猎",
-"Anomaly Commission":"异象委托",
-"Gift from \"21\"":"21的赠礼",
-"Ebisu Auction House":"惠比寿拍卖行",
-"Security Office":"治安所",
-"Hethereau Municipal Hospital":"海特洛市立医院",
-"Train Station":"火车站",
-"Sterry Express":"斯特利速递",
-"Bagel - Praise Jam Interactions":"呗果-过奖果酱互动",
-"View 5 posts, Like 3 posts, Comment 3 posts for the flat 2,000 🍩Praise Jam daily bonus\n- Sort by latest, then look up \"STARDB\", and like (+30 score) and star (+60 score) as many posts as you can. After you've done to that every post, you can additionally comment (+60 score) on different posts, though comments have a 10s cooldown":"每日浏览5篇帖子，点赞3篇帖子，评论3次。可获得2000🍩过奖果酱。-如果你想获得更多果酱，可以自己给自己帖子评论增加帖子分数，使用完每日100条评论上限可多获得1200🍩过奖果酱。",
-"View 5 posts, Like 3 posts, Comment 3 posts for the flat 2,000 🍩Praise Jam daily bonus.\nSort by latest, then look up \"STARDB\", and like (+30 score) and star (+60 score) as many posts as you can. After you've done to that every post, you can additionally comment (+60 score) on different posts, though comments have a 10s cooldown.":"每日浏览5篇帖子，点赞3篇帖子，评论3次。可获得2000🍩过奖果酱。",
-"Bagel - 5 Daily Posts":"呗果-每日5帖",
-"Put  \"STARDB\" somewhere in the title of your 5 daily posts":"虽然发帖不会有奖励，但是海特洛市民会给你每帖至少点10赞",
-"The Cafe by Origen":"一咖舍",
-"Leon Estate Group":"莱昂置业",
-"Novus":"新越",
-"Rampage Players":"暴走玩家",
-"The Witch's House":"魔女之家",
-"Little Sparrow":"小小麻雀",
-"Xtreme99!":"极限99！",
-"City Shops":"城市商店",
-"Recommended Locations":"推荐点位",
-"Random Key Pickup":"钥匙随机点位",
-"Special Location":"特殊点位",
-"Miscellaneous":"杂项",
-"Serenetti Manor":"塞润尼缇庄园",
-"Pink Paws Bank Branch":"粉爪支行",
-"24h Tasks":"24小时计划表",
-"1 Week Tasks":"1周计划表",
-"1 Month Tasks":"1月计划表",
-"Tomato Devil":"番茄酱恶魔",
-"Hethereau - Full Throttle":"海特洛-全速前进！车队",
-"Miguel District - Meridian":"米格尔区-子午线车队",
-"Hunter Guides":"特级猎人攻略",
-"Abandoned Furniture":"遗弃的家具",
-"Kokoro Rider Figurine Boxes":"心猎铁骑手办",
-"Coupon Vouchers":"优惠券",
-"Can only claim 1 per Coupon Voucher type":"每种类型的优惠券只能领取1张",
-"Everdriving Mystery Box":"失速狂飙盲盒",
-"This Mystery Box may contain the limited vehicle Porsche 918 Spyder, Esper Zero's limited outfit Perfect Partners, growth materials, and more.":"包含限定载具Porsche 918 Spyder、角色零的时装最佳拍档、养成材料等。",
-"Circle Gift":"环期赠礼",
-"Underground Circuit":"黑暗赛车界",
-"What's Baking":"热帖烘焙中",
-"Sunward Travelogue":"向阳游记",
-"The Long Dream":"十三日梦醒",
-"Fons Rush":"淘方斯记",
-"[Character] Fading Reverie - Lacrimosa":"[角色]久梦初醒时-安魂曲",
-"Lacrimosa\nEdgar\nMint\nAdler":"安魂曲 埃德嘉 薄荷 阿德勒",
-"[Arc] Nocturne Special":"[弧盘]夜曲特刊",
-"Nocturne Special":"夜曲特刊",
-"The Last Rose (Lacrimosa)":"最后一朵玫瑰(安魂曲)",
-"[Trial] Market Opening Rehearsal":"[试玩]开市预演",
-"Market Opening Rehearsal":"开市预演",
-"[Skin] Daydream Perks":"[装扮]白日梦礼遇",
-"Daydream Perks":"白日梦礼遇",
-"[50] Tomato Duo - Glider\n[120] Tomato Cruise - Livery\n[200] Gilded Rhapsody - Outfit":"[50]好柿成双-滑翔翼 [120]番茄酱巡航-涂装 [200]鎏金交响诗-时装",
-"Hamster Ball":"仓鼠球",
-"BP Daily Quests":"环期赏令每日任务",
-"Damaged Crate / Intact Crate":"破损的木箱/完整的木箱",
-"Small Safes":"小保险箱",
-"Fading Reverie":"久梦初醒时",
-"City Tycoon -> Races -> Online Battle":"都市大亨->车辆赛事->在线对战",
-"BP Lvl 70":"环期赏令70级",
-"[Fishing] 600,000 Beetle Coin":"[钓鱼]600,000甲硬币",
-"Purchase 1x Gluttonous Eye / Covetous Coins for [Anomaly Furniture] Blind Mammon / Mammon":"购买饕目/觊觎钱币用于[异象家具]盲眼的玛门/玛门",
-"Blind Mammon / Mammon":"盲眼的玛门/玛门",
-"Old Mailbox / 93/4 Mailbox":"老旧邮箱/「93/4邮箱」",
-"BP Weekly Quest + XP Cap":"环期赏令每周任务+历练值上限",
-"Hunter's Crucible":"争锋赏宴",
-"Mint CSU Visit":"拜访薄荷办公室",
-"Map marker filters":"地图标记筛选",
-"No filters selected yet.":"未选择地图标记",
-"Reset starts":"何时重置",
-"When completed":"当完成后",
-"Pick date & time":"选择日期和时间",
-"Date & Time":"日期和时间",
-"Timezone":"时区",
-"Timestamp Mode":"时间戳模式",
-"Absolute":"固定",
-"Region-specific":"特定区服",
-"China offset":"国服时差",
-"China":"国服",
-"Days":"天数",
-"Hours":"小时数",
-"Interval":"间隔",
-"No interval set.":"未设置间隔",
-"Add":"添加",
-"Use a duration like 2 hours or 3 d.":"填入数字+时间单位，如2 h、3 d",
-"Tracker":"追踪",
-"Instructions":"说明",
-"City Tycoon -> The Cafe by Origen -> Collect Earnings":"都市大亨->一咖舍->提取收益",
-"Certain NPCs may carry these, attack to obtain":"攻击特定NPC获得",
-"City Tycoon -> Property -> Anomaly Furniture\n- Claim random Module":"都市大亨->房产->异象家具-获得随机驱动",
-"City Tycoon -> Property -> Anomaly Furniture\n- Claim Beetle Coin":"都市大亨->房产->异象家具-获得甲硬币"
-
-    };
-    // 2. 局部包含匹配：原文里只要包含key，就把key片段替换成value
-    const partMatchDict = {
-        "Hidden": "已隐藏",
-        "Full in ": "全部恢复时间 ",
-        "Next in ": "下次恢复时间 ",
-        "Reset ": "重置时间 "
+    // ====================== 全局常量配置区（统一修改无需翻代码） ======================
+    const CONFIG = {
+        OPEN_DELAY_MS: 1000,
+        DEBOUNCE_WAIT: 300,
+        FLOAT_WIN_WIDTH: 280,
+        FLOAT_WIN_MAX_HEIGHT: 400,
+        FLOAT_WIN_ZINDEX: 999999,
+        NUMBER_REG: /\b\d{6,7}\b/,
+        STORAGE_KEY_WIN_POS: 'fc2cmadb_float_pos'
     };
 
-    const fullKeys = Object.keys(fullMatchDict);
-    const partKeys = Object.keys(partMatchDict);
+    // 翻译词典 - 可自由扩充
+    const translationDict = {
+        "ランキング": "排行",
+        "コメントする": "发表评论",
+        "セール": "折扣",
+        "コメント": "评论",
+        "お気に入り": "收藏",
+        "女優": "女优",
+        "販売者": "作者",
+        "タイトル ID": "标题ID",
+        "人気作品": "人气作品",
+        "すべて見る": "查看全部",
+        "テーマ切り替え": "切换主题",
+        "ライトモードに切り替える": "白天模式",
+        "ダークモードに切り替える": "黑暗模式",
+        "システムテーマを有効にする": "跟随系统设置",
+        "旧サイトのアカウントでログインできます。": "可以用旧网站的账号登录。",
+        "评论履歴": "历史评论",
+        "まだ评论はありません": "无评论",
+        "アカウント": "账户",
+        "ログアウト": "退出登录",
+        "モザイク": "马赛克",
+        "販売日": "销售日期",
+        "収録時間": "收录时间",
+        "タグ": "标签",
+        "リンク": "关联",
+        "閉じる": "关闭",
+    };
 
-    // 统一换行+去首尾空格
-    function formatStr(str) {
-        return str.replace(/\r?\n/g, '\n').trim();
+    // 全局变量
+    let foundNumbers = new Set();
+    let floatWindow = null;
+    let observer = null;
+    let floatHeader = null;
+    let cachedBlurImgs = new WeakSet(); // 缓存已处理去模糊图片，避免重复操作
+    let winDragPos = { left: '', top: '' };
+
+    // ====================== 工具函数 ======================
+    /** 防抖封装 */
+    function debounce(func, wait) {
+        let timeoutId = null;
+        return function(...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), wait);
+        };
     }
 
-    // 文本替换逻辑：先全匹配、再局部替换
-    function replaceText(text) {
-        let fmt = formatStr(text);
-        // 优先全词整段替换
-        if(fullKeys.includes(fmt)){
-            return fullMatchDict[fmt];
+    /** 安全打开新标签，兼容GM函数兜底 */
+    function safeOpenTab(url) {
+        try {
+            GM_openInTab(url, { active: false, insert: true, setParent: true });
+        } catch (err) {
+            window.open(url, '_blank');
         }
-        // 再循环局部关键词替换
-        let res = text;
-        partKeys.forEach(key=>{
-            // 全局正则替换，防止只替换第一个
-            const reg = new RegExp(key,"g");
-            res = res.replace(reg, partMatchDict[key]);
-        })
-        // 时间格式转换核心
-        res = res.replace(/(\d+)d/g,"$1天");
-        res = res.replace(/(\d+)h/g,"$1小时");
-        res = res.replace(/(\d+)m/g,"$1分钟");
-        res = res.replace(/(\d+)\s+Month(s)?/gi, "$1月");
-        res = res.replace(/(\d+)\s+Week(s)?/gi, "$1周");
-        return res;
     }
 
-    // 递归遍历DOM节点
-    function replaceFull(node) {
-        if (node.nodeType === 3) {
-            const newTxt = replaceText(node.textContent);
-            if(newTxt !== node.textContent){
-                node.textContent = newTxt;
+    /** 保存悬浮窗位置到本地存储 */
+    function saveWindowPosition(left, top) {
+        localStorage.setItem(CONFIG.STORAGE_KEY_WIN_POS, JSON.stringify({ left, top }));
+    }
+
+    /** 读取悬浮窗上次位置 */
+    function loadWindowPosition() {
+        const posStr = localStorage.getItem(CONFIG.STORAGE_KEY_WIN_POS);
+        if (!posStr) return null;
+        try {
+            return JSON.parse(posStr);
+        } catch {
+            return null;
+        }
+    }
+
+    // ====================== 1. 全局字体注入 ======================
+    function injectGlobalFonts() {
+        if (document.getElementById('gm-global-font-style')) return;
+        const fontStyle = document.createElement('style');
+        fontStyle.id = 'gm-global-font-style';
+        fontStyle.innerHTML = `
+            body, div, p, span, a, td, th, input, button, textarea, section, article, li, ul, ol, h1, h2, h3, h4, h5, h6 {
+                font-family: "Microsoft YaHei", "微软雅黑", -apple-system, BlinkMacSystemFont, sans-serif !important;
             }
-            return;
-        }
-        const skip = ['SCRIPT','STYLE','IFRAME','NOSCRIPT','CODE','PRE'];
-        if(skip.includes(node.tagName)) return;
-        [...node.childNodes].forEach(replaceFull);
+            #gm-helper-float-window, #gm-helper-float-window * {
+                font-family: "Microsoft YaHei", "微软雅黑", sans-serif !important;
+            }
+        `;
+        document.head.appendChild(fontStyle);
     }
 
-    // 初始化执行
-    setTimeout(()=>replaceFull(document.body),50);
+    // ====================== 2. 翻译模块（性能优化版） ======================
+    /** 翻译文本节点 */
+    function translateTextNode(node) {
+        if (!node?.nodeValue?.trim()) return;
+        let text = node.nodeValue;
+        let isChanged = false;
 
-    // DOM变动监听
-    const observer = new MutationObserver((mutations)=>{
-        mutations.forEach(item=>{
-            [...item.addedNodes].forEach(replaceFull);
-        })
+        for (const [raw, target] of Object.entries(translationDict)) {
+            if (text.includes(raw)) {
+                text = text.split(raw).join(target);
+                isChanged = true;
+            }
+        }
+
+        if (isChanged) node.nodeValue = text;
+    }
+
+    /** 翻译元素属性 */
+    function translateAttributes(el) {
+        if (el.nodeType !== Node.ELEMENT_NODE) return;
+        const transAttrs = ['title', 'alt', 'aria-label', 'placeholder', 'data-tip', 'data-tooltip'];
+        transAttrs.forEach(attr => {
+            if (!el.hasAttribute(attr)) return;
+            let val = el.getAttribute(attr);
+            let newVal = val;
+            for (const [raw, target] of Object.entries(translationDict)) {
+                newVal = newVal.split(raw).join(target);
+            }
+            if (newVal !== val) el.setAttribute(attr, newVal);
+        });
+    }
+
+    /** 批量翻译元素及其内部所有文本/属性 */
+    function translateElement(rootEl) {
+        if (!rootEl || ['SCRIPT','STYLE','TEXTAREA','NOSCRIPT','IFRAME'].includes(rootEl.tagName)) return;
+        translateAttributes(rootEl);
+
+        // 遍历所有后代元素翻译属性
+        rootEl.querySelectorAll('*').forEach(el => {
+            if (!['SCRIPT','STYLE','TEXTAREA','NOSCRIPT','IFRAME'].includes(el.tagName)) {
+                translateAttributes(el);
+            }
+        });
+
+        // 遍历所有文本节点翻译文字
+        const walker = document.createTreeWalker(
+            rootEl,
+            NodeFilter.SHOW_TEXT,
+            { acceptNode: n => n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT },
+            false
+        );
+        let textNode;
+        while ((textNode = walker.nextNode())) translateTextNode(textNode);
+    }
+
+    // ====================== 3. 图片去模糊模块（强制兜底样式） ======================
+    function unblurImg(imgEl) {
+        if (!imgEl || cachedBlurImgs.has(imgEl)) return;
+        cachedBlurImgs.add(imgEl);
+
+        // 移除所有blur前缀类名
+        const blurClassList = Array.from(imgEl.classList).filter(c => c.startsWith('blur'));
+        blurClassList.forEach(cls => imgEl.classList.remove(cls));
+        imgEl.classList.add('null');
+
+        // 强制清除滤镜，兜底样式防止页面JS重新加blur
+        imgEl.style.filter = 'none !important';
+        imgEl.style.backdropFilter = 'none !important';
+    }
+
+    // 批量处理页面所有模糊图片
+    function batchUnblurAllImg() {
+        document.querySelectorAll('img[class*="blur"]').forEach(unblurImg);
+    }
+
+    // ====================== 4. 7位数字提取模块 ======================
+    function extractSevenDigitNumbers() {
+        const prevCount = foundNumbers.size;
+        foundNumbers.clear();
+
+        // 精准限定目标DOM，不全局遍历所有span/td，提升性能
+        const targetSpans = document.querySelectorAll('span.absolute.top-0.left-0.text-sm.text-white.bg-gray-800.opacity-80.rounded-tl-lg.px-1');
+        const targetTds = document.querySelectorAll('td.w-8\\/10.text-base.font-medium');
+
+        targetSpans.forEach(span => {
+            const match = span.textContent.match(CONFIG.NUMBER_REG);
+            if (match) foundNumbers.add(match[0]);
+        });
+        targetTds.forEach(td => {
+            const match = td.textContent.match(CONFIG.NUMBER_REG);
+            if (match) foundNumbers.add(match[0]);
+        });
+
+        // 数字发生变化才更新悬浮窗
+        if (foundNumbers.size !== prevCount) updateFloatWindow();
+    }
+    const debouncedExtractNum = debounce(extractSevenDigitNumbers, CONFIG.DEBOUNCE_WAIT);
+
+    // ====================== 5. 悬浮窗UI 创建/更新/拖拽 ======================
+    function createFloatWindowStyle() {
+        if (document.getElementById('gm-float-win-style')) return;
+        const style = document.createElement('style');
+        style.id = 'gm-float-win-style';
+        style.innerHTML = `
+            #gm-helper-float-window {
+                position: fixed;
+                right: 20px;
+                top: 100px;
+                z-index: ${CONFIG.FLOAT_WIN_ZINDEX};
+                min-width: ${CONFIG.FLOAT_WIN_WIDTH}px;
+                background: #fff;
+                border: 1px solid #ccc;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                border-radius: 8px;
+                font-size: 14px;
+                color: #333;
+                overflow: hidden;
+            }
+            #gm-helper-header {
+                padding: 10px;
+                background: #f5f5f5;
+                border-bottom: 1px solid #ddd;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+                cursor: move;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                user-select: none;
+            }
+            #gm-helper-body {
+                max-height: ${CONFIG.FLOAT_WIN_MAX_HEIGHT}px;
+                overflow-y: auto;
+                padding: 10px;
+            }
+            #gm-helper-body::-webkit-scrollbar { width: 6px; }
+            #gm-helper-body::-webkit-scrollbar-thumb { background: #aaa; border-radius: 3px; }
+            .gm-btn {
+                padding: 4px 8px;
+                cursor: pointer;
+                border: 1px solid #ccc;
+                background: #fff;
+                border-radius: 4px;
+                font-size:12px;
+            }
+            .gm-btn:hover:not(:disabled) { background: #e9e9e9; }
+            .gm-btn:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
+            #gm-helper-close {
+                cursor: pointer;
+                color: red;
+                font-weight: bold;
+                font-size: 16px;
+                margin-left: 10px;
+            }
+            .gm-table { width: 100%; border-collapse: collapse; text-align: center; }
+            .gm-table th, .gm-table td { border: 1px solid #eee; padding: 6px; }
+            .gm-link { color: #0066cc; text-decoration: none; cursor: pointer; font-weight: bold; }
+            .gm-link:hover { text-decoration: underline; color: #004499; }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function createFloatWindow() {
+        if (document.getElementById('gm-helper-float-window')) return;
+        createFloatWindowStyle();
+
+        floatWindow = document.createElement('div');
+        floatWindow.id = 'gm-helper-float-window';
+        floatHeader = document.createElement('div');
+        floatHeader.id = 'gm-helper-header';
+        floatHeader.innerHTML = `
+            <div>
+                <strong id="gm-count-display">找到 0 个</strong>
+                <button class="gm-btn" id="gm-btn-refresh" style="margin-left:5px;">刷新</button>
+                <button class="gm-btn" id="gm-btn-open-all" style="margin-left:5px;">一键打开</button>
+            </div>
+            <div id="gm-helper-close">×</div>
+        `;
+        const bodyWrap = document.createElement('div');
+        bodyWrap.id = 'gm-helper-body';
+        bodyWrap.innerHTML = `
+            <table class="gm-table">
+                <thead><tr><th>下载链接</th><th>在线播放</th></tr></thead>
+                <tbody id="gm-table-body"></tbody>
+            </table>
+        `;
+        floatWindow.append(floatHeader, bodyWrap);
+        document.body.appendChild(floatWindow);
+
+        // 恢复上次拖拽位置
+        const lastPos = loadWindowPosition();
+        if (lastPos) {
+            floatWindow.style.left = lastPos.left;
+            floatWindow.style.top = lastPos.top;
+            floatWindow.style.right = 'auto';
+        }
+
+        // 链接点击跳转
+        floatWindow.addEventListener('click', e => {
+            const link = e.target.closest('.gm-link');
+            if (!link) return;
+            e.preventDefault();
+            safeOpenTab(link.getAttribute('href'));
+            setTimeout(() => window.focus(), 50);
+        });
+
+        // 关闭按钮
+        document.getElementById('gm-helper-close').onclick = () => {
+            floatWindow.style.display = 'none';
+        };
+
+        // 刷新按钮
+        document.getElementById('gm-btn-refresh').onclick = () => {
+            batchUnblurAllImg();
+            translateElement(document.body);
+            extractSevenDigitNumbers();
+            floatWindow.style.display = 'block';
+            updateFloatWindow();
+        };
+
+        // 一键打开全部
+        const openAllBtn = document.getElementById('gm-btn-open-all');
+        openAllBtn.onclick = async function() {
+            const btn = this;
+            const numList = Array.from(foundNumbers).sort((a,b) => a - b);
+            if (!numList.length) return;
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            const originText = btn.innerText;
+
+            for (let i = 0; i < numList.length; i++) {
+                const num = numList[i];
+                const nyaaUrl = `https://sukebei.nyaa.si/?f=0&c=0_0&q=${num}`;
+                btn.innerText = `打开中 (${i + 1}/${numList.length})`;
+                safeOpenTab(nyaaUrl);
+                window.focus();
+                if (i < numList.length - 1) await new Promise(r => setTimeout(r, CONFIG.OPEN_DELAY_MS));
+            }
+
+            btn.innerText = '完成!';
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerText = originText;
+                window.focus();
+            }, 1500);
+        };
+
+        // 拖拽逻辑（边界限制+保存位置）
+        floatHeader.onmousedown = dragStart;
+    }
+
+    function dragStart(e) {
+        // 排除按钮/关闭区域，不触发拖拽
+        if (['BUTTON', 'DIV'].includes(e.target.tagName) && e.target.id !== 'gm-helper-header') return;
+        e.preventDefault();
+        const rect = floatWindow.getBoundingClientRect();
+        const shiftX = e.clientX - rect.left;
+        const shiftY = e.clientY - rect.top;
+
+        function moveHandler(evt) {
+            // 边界限制，窗口不超出可视区域
+            let x = evt.clientX - shiftX;
+            let y = evt.clientY - shiftY;
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            const boxW = floatWindow.offsetWidth;
+            const boxH = floatWindow.offsetHeight;
+
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x + boxW > winW) x = winW - boxW;
+            if (y + boxH > winH) y = winH - boxH;
+
+            floatWindow.style.left = `${x}px`;
+            floatWindow.style.top = `${y}px`;
+            floatWindow.style.right = 'auto';
+            winDragPos.left = `${x}px`;
+            winDragPos.top = `${y}px`;
+        }
+
+        function upHandler() {
+            document.removeEventListener('mousemove', moveHandler);
+            document.removeEventListener('mouseup', upHandler);
+            saveWindowPosition(winDragPos.left, winDragPos.top);
+        }
+        document.addEventListener('mousemove', moveHandler);
+        document.addEventListener('mouseup', upHandler, { once: true });
+    }
+
+    function updateFloatWindow() {
+        if (!floatWindow) createFloatWindow();
+        floatWindow.style.display = 'block';
+
+        const tbody = document.getElementById('gm-table-body');
+        const countText = document.getElementById('gm-count-display');
+        tbody.innerHTML = '';
+        const numArr = Array.from(foundNumbers).sort((a,b) => a - b);
+        countText.innerText = `找到 ${numArr.length} 个`;
+
+        numArr.forEach(num => {
+            const tr = document.createElement('tr');
+            const nyaaUrl = `https://sukebei.nyaa.si/?f=0&c=0_0&q=${num}`;
+            const supjavUrl = `https://supjav.com/zh/?s=${num}`;
+
+            const td1 = document.createElement('td');
+            td1.innerHTML = `<a href="${nyaaUrl}" class="gm-link">${num}</a>`;
+            const td2 = document.createElement('td');
+            td2.innerHTML = `<a href="${supjavUrl}" class="gm-link">${num}</a>`;
+            tr.append(td1, td2);
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ====================== 6. 页面动态监听 Observer ======================
+    function startMutationObserver() {
+        if (observer) return;
+        const obsConfig = {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'title', 'alt', 'aria-label', 'placeholder', 'data-tip', 'data-tooltip'],
+            characterData: true
+        };
+
+        observer = new MutationObserver(mutations => {
+            let needExtractNum = false;
+            let needFullTranslate = false;
+
+            mutations.forEach(mut => {
+                // 新增节点
+                if (mut.type === 'childList') {
+                    mut.addedNodes.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            translateTextNode(node);
+                        } else if (node.nodeType === Node.ELEMENT_NODE) {
+                            translateElement(node);
+                            if (node.tagName === 'IMG') unblurImg(node);
+                            node.querySelectorAll('img[class*="blur"]').forEach(unblurImg);
+                            needExtractNum = true;
+                        }
+                    });
+                }
+                // 文字内容修改
+                if (mut.type === 'characterData') translateTextNode(mut.target);
+                // 属性修改
+                if (mut.type === 'attributes') {
+                    const target = mut.target;
+                    if (mut.attributeName === 'class' && target.tagName === 'IMG') {
+                        unblurImg(target);
+                    } else translateAttributes(target);
+                }
+            });
+
+            if (needExtractNum) debouncedExtractNum();
+        });
+        observer.observe(document.body, obsConfig);
+    }
+
+    // 页面卸载销毁监听，防止内存泄漏
+    window.addEventListener('beforeunload', () => {
+        if (observer) observer.disconnect();
     });
-    observer.observe(document.body, {childList:true, subtree:true, characterData:true});
 
-    // 兜底定时刷新
-    setInterval(()=>replaceFull(document.body),600);
+    // ====================== 7. 脚本初始化入口 ======================
+    function init() {
+        injectGlobalFonts();
+        batchUnblurAllImg();
+        translateElement(document.body);
+        extractSevenDigitNumbers();
+        updateFloatWindow();
+        startMutationObserver();
+    }
 
+    // DOM加载完成执行初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();
